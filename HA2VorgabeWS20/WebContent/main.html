@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SWTPP Game Server: Main Page</title>
+
+<script src="js/json3.min.js"></script>
+<script src="js/jquery-1.10.1.min.js"></script>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<script>
+
+/*
+ * On document start: load data of current user: names and current unfinished games.
+ */
+$(document).ready(function() {
+
+   var params = 'usecase=getuserdata';
+   var request = new XMLHttpRequest();
+
+   // create get user data request
+   request.open('GET', '/GameServer/GameServerServlet?' + params, true);  
+   request.onload = function() {
+	   if (this.responseText == '') {
+		   // something went wrong: go back to login
+		   window.location.href ="/GameServer/index.html";
+		   return;
+	   }
+	   else {	   
+		  // display json data 
+	      var userDataJSON = jQuery.parseJSON(request.responseText);
+		  
+		  // dynamically create table of games
+		  var gameRows ='<tr><th>ID</th><th>Players</th><th></th></tr>';
+		  $.each(userDataJSON.games,function(key, arr){
+			  if (arr[1] === "crazyhouse") {
+				gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="Crazyhouse.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } else if (arr[1] === "ploy") {
+				gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="Ploy.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } else if (arr[1] === "cannon") {
+			  	gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="Cannon.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } else if (arr[1] === "lasca") {
+			  	gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="Lasca.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } else if (arr[1] === "deathstacks") {
+				gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="DeathStacks.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } else if (arr[1] === "chess") {
+				gameRows +='<td>'+arr.join('</td><td>')+'</td><td><a href="Chess.html?game=' + arr[0] + '" target="_blank">Continue</a></td></tr>';
+			  } 
+		
+		  });
+		
+		  // display stuff
+		  $('#username').html( 'current user: ' + userDataJSON.userFirstName);
+		  $('#games').html(gameRows);
+	   }
+   }
+
+   // submit request
+   request.send(params);
+});
+
+</script>
+</head>
+<body>
+<table>
+<tr><td style="width:50%">
+<h1>SWTPP Game Server</h1>
+</td>
+<td>
+<div style="text-align:right;"><div id="username"></div><a href="logout.html">Log off</a></div>
+</td></tr>
+</table>
+
+<h2>Your Games</h2>
+
+<table id="games"></table>
+
+<h2>Options</h2>
+
+<!-- 
+ <select>
+  <option value="ploy">Ploy</option>
+  <option value="deathstacks">Death Stacks</option>
+  <option value="cannon">Cannon</option>
+  <option value="lasca">Lasca</option>
+  <option value="chess">Chess</option>
+</select>
+ --> 
+<table>
+<tr>
+<td>Crazyhouse &nbsp; &nbsp;</td><td>
+<br><a href="Crazyhouse.html?start" target="_blank">Start new Game</a>
+<br><a href="Crazyhouse.html?join" target="_blank">Join Game</a>
+<br><a href="Crazyhouse.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td>Ploy &nbsp; &nbsp;</td><td>
+<br><a href="Ploy.html?start" target="_blank">Start new Game</a>
+<br><a href="Ploy.html?join" target="_blank">Join Game</a>
+<br><a href="Ploy.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td>Death Stacks &nbsp; &nbsp;</td><td>
+<br><a href="DeathStacks.html?start" target="_blank">Start new Game</a>
+<br><a href="DeathStacks.html?join" target="_blank">Join Game</a>
+<br><a href="DeathStacks.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td>Cannon</td><td>
+<br><a href="Cannon.html?start" target="_blank">Start new Game</a>
+<br><a href="Cannon.html?join" target="_blank">Join Game</a>
+<br><a href="Cannon.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td>Lasca</td><td>
+<br><a href="Lasca.html?start" target="_blank">Start new Game</a>
+<br><a href="Lasca.html?join" target="_blank">Join Game</a>
+<br><a href="Lasca.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td>Chess</td><td>
+<a href="Chess.html?start" target="_blank">Start new Game</a>
+<br><a href="Chess.html?join" target="_blank">Join Game</a>
+<br><a href="Chess.html?haskell" target="_blank">Start new Game against Haskell-Bot</a>
+</td></tr><tr>
+<td></td><td>
+<br><a href="Statistics.html" >Open Statistics</a>
+</td>
+</tr>
+</table>
+</body>
+</html>
