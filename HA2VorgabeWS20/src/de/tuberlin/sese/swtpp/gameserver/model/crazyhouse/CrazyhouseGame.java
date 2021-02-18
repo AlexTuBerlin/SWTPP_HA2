@@ -3,6 +3,8 @@ package de.tuberlin.sese.swtpp.gameserver.model.crazyhouse;
 import java.io.Serializable;
 
 import de.tuberlin.sese.swtpp.gameserver.model.Game;
+import de.tuberlin.sese.swtpp.gameserver.model.Gamestate;
+import de.tuberlin.sese.swtpp.gameserver.model.Move;
 import de.tuberlin.sese.swtpp.gameserver.model.Player;
 
 public class CrazyhouseGame extends Game implements Serializable{
@@ -19,6 +21,7 @@ public class CrazyhouseGame extends Game implements Serializable{
 	// just for better comprehensibility of the code: assign white and black player
 	private Player blackPlayer;
 	private Player whitePlayer;
+	private Gamestate board;
 
 	// internal representation of the game state
 	// TODO: insert additional game data here
@@ -29,6 +32,7 @@ public class CrazyhouseGame extends Game implements Serializable{
 
 	public CrazyhouseGame() {
 		super();
+		board = Gamestate.getGamestate(); //new Board
 
 		// TODO: initialize internal model if necessary 
 	}
@@ -202,25 +206,61 @@ public class CrazyhouseGame extends Game implements Serializable{
 
 	@Override
 	public void setBoard(String state) {
-		// Note: This method is for automatic testing. A regular game would not start at some artificial state.
-		//       It can be assumed that the state supplied is a regular board that can be reached during a game.
-		// TODO: implement
+		board.setBoardState(state);
 	}
-
+	
 	@Override
 	public String getBoard() {
-		// TODO: implement
-		
-		// replace with real implementation
-		return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/";
+		return board.getBoardState();
 	}
 
 	@Override
 	public boolean tryMove(String moveString, Player player) {
-		// TODO: implement
+		String boardPre = board.getBoardState();
+		Move move = new Move(moveString,boardPre,player);
 		
-		// replace with real implementation
+		boolean isMovePossible = false;
+		boolean moveSuccess = false;
+		boolean isPosWhite = board.isWhite(move.getPosition());
+		boolean isWhite=whitePlayer.equals(player);
+		
+		if((isWhite&&isPosWhite&&isWhiteNext() ||
+		   blackPlayer.equals(player) && !isPosWhite&& !isWhiteNext()) &&
+				move.isValid()) {
+			
+			//ADD TO BOARD MOVE
+			if(move.getPosition().length()==1) {
+				isMovePossible = board.getPieceFromPos(move.getTarget())==null;
+				if(isMovePossible) {
+					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget());
+				}
+			} 
+			
+			//ORDENARY MOVE
+			if(move.isOrdenaryMove()) {
+				isMovePossible = board.getPieceFromPos(move.getPosition()).tryMove(move);
+				if(isMovePossible) {
+					moveSuccess = board.doMove(move);
+				}
+			}
+			
+			if(moveSuccess) {
+				this.history.add(move);
+				
+				if(isWhite) {
+					setNextPlayer(blackPlayer);
+				} else {
+					setNextPlayer(whitePlayer);
+				}
+				board.setTurn(!isWhite);
+				
+				//Check if moves are available
+				if(board.isKingInDanger()||board.getAllMovesPossible().isEmpty()) {
+					giveUp(getNextPlayer());
+				}
+				return true;
+			}
+		}
 		return false;
 	}
-
 }

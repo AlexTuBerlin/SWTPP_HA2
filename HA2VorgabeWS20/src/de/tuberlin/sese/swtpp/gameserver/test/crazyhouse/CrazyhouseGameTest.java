@@ -2,6 +2,7 @@ package de.tuberlin.sese.swtpp.gameserver.test.crazyhouse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -38,7 +39,6 @@ public final class CrazyhouseGameTest {
 		controller.joinGame(user2, "crazyhouse");
 		blackPlayer = game.getPlayer(user2);
 	}
-
 	
 	@Test
 	public void testWaitingGame() {
@@ -180,5 +180,12 @@ public final class CrazyhouseGameTest {
 		assertEquals("Error", game.getStatus());
 		game.setError(false);
 		assertFalse(game.isError());
+	}
+	
+	@Test
+	public void testGetBoard() {
+		startGame();
+		
+		assertNotNull(game.getBoard());
 	}
 }
