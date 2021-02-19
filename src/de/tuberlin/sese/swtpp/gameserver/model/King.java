@@ -1,7 +1,11 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class King extends Chesspiece{
+import java.io.Serializable;
+
+public class King extends Chesspiece implements Serializable{
 	
+	private static final long serialVersionUID = 73233873088043830L;
+
 	public King(String pos,char fenChar) {
 		super(pos,fenChar);
 	}
@@ -25,7 +29,6 @@ public class King extends Chesspiece{
 			} else {
 				return false;
 			}
-			
 		} else {
 			return false;
 		}

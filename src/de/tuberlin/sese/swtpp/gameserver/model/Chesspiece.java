@@ -5,7 +5,7 @@ public abstract class Chesspiece {
     private boolean isWhite;
 	private String pos;
 	private char fenChar;
-	
+
 	public Chesspiece(String pos,char fenChar) {
 		this.pos = pos;
 		this.fenChar = fenChar;
@@ -24,6 +24,10 @@ public abstract class Chesspiece {
 
 	public String getPos() {
 		return pos;
+	}
+	
+	public void setPos(String pos) {
+		this.pos = pos;
 	}
 
 	public char getFenChar() {

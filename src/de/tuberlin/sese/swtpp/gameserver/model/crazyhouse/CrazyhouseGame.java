@@ -221,7 +221,7 @@ public class CrazyhouseGame extends Game implements Serializable{
 		
 		boolean isMovePossible = false;
 		boolean moveSuccess = false;
-		boolean isPosWhite = board.isWhite(move.getPosition());
+		boolean isPosWhite = move.isAddToBoardMove()||board.isWhite(move.getPosition());
 		boolean isWhite=whitePlayer.equals(player);
 		
 		if((isWhite&&isPosWhite&&isWhiteNext() ||
@@ -255,7 +255,7 @@ public class CrazyhouseGame extends Game implements Serializable{
 				board.setTurn(!isWhite);
 				
 				//Check if moves are available
-				if(board.isKingInDanger()||board.getAllMovesPossible().isEmpty()) {
+				if(board.isKingInDanger()||board.getAllMovesPossible().isEmpty()) { //TODO true/false -remise
 					giveUp(getNextPlayer());
 				}
 				return true;

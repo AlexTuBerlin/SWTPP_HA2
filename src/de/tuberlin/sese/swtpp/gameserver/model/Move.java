@@ -35,15 +35,15 @@ public class Move implements Serializable {
         this.move = move;
         this.board = boardBefore;
         this.player = player;
-        this.xOffset = calcOffset(0,move);
-        this.yOffset = calcOffset(1,move);
         this.validStructure = checkString();
         this.isAddToBoard = isAddToBoardMove();
+        this.xOffset = calcOffset(0,move);
+        this.yOffset = calcOffset(1,move);
     }
 
     public boolean isOrdenaryMove() {
     	String[] arr = this.move.split("-");
-    	if(arr.length ==2) {
+    	if(arr.length ==2 && arr[0].length()==2) {
 	    	int x1,x2,y1,y2;
 	    	x1=getCoordFromPos(arr[0],0);
 	    	y1=getCoordFromPos(arr[0],1);
@@ -75,8 +75,11 @@ public class Move implements Serializable {
     }
 
 	private int calcOffset(int axis, String move) {
+		if(!isAddToBoardMove()) {
     	String[] arr = this.move.split("-");
     	return getCoordFromPos(arr[1], axis)-getCoordFromPos(arr[0], axis);
+		}
+		return 0;
 	}
 
 	// returns either x or y Coordinates of Position

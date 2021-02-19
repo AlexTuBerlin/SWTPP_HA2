@@ -1,21 +1,21 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Gamestate {
-	  private static Gamestate INSTANCE;
+public class Gamestate implements Serializable {
+
+	private static final long serialVersionUID = 1007695680187123877L;
+	private static Gamestate INSTANCE;
 	  private String boardState;
-	  private List<Chesspiece> reserveW;
-	  private List<Chesspiece> reserveB;
 	  private boolean whiteTurn;
 	    
 	    private Gamestate() {    
-	    	boardState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; //Start-Zustand Board
-	    	reserveW = new LinkedList<Chesspiece>();
-	    	reserveB = new LinkedList<Chesspiece>();
+	    	boardState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/"; //Start-Zustand Board
 	    	whiteTurn=true;
 	    }
 	    
@@ -71,14 +71,38 @@ public class Gamestate {
 						x++;
 					}
 				}
-				if(y!=7) {
 					fen=fen+"/";
-				}
 				x=0;
 				lastCol = false;
 				y++;
 			}
 			return fen;
+		}
+		public List<Character> getReserveAsList() {
+			String[] rows = getBoardState().split("/");
+			List<Character> reserveList =  new LinkedList<>();
+			if(rows[8]!=null) {
+				for(char c:rows[8].toCharArray()) {
+					reserveList.add(c);
+				}
+			}
+			return reserveList;
+		}
+		
+		public boolean addToReserve(Chesspiece cp) {
+			String reserveOld=getReserve();
+			String reserveNew = reserveOld+changeCase(cp.getFenChar());
+			cp.setPos("");
+			setReserve(sortString(reserveNew));
+			return reserveOld.length()!=reserveNew.length();
+		}
+		
+		public static char changeCase(char c) {
+			if(Character.toUpperCase(c)==c) {
+				return Character.toLowerCase(c);
+			} else {
+				return Character.toUpperCase(c);
+			}
 		}
 		
 		//Fen String -> 2d-Char-Array
@@ -121,6 +145,15 @@ public class Gamestate {
 			int x = Move.getCoordFromPos(pos,0);
 			return boardA[y][x];
 		}
+		
+		public boolean addPieceToBoard(Chesspiece cp) {
+			String boardPre = getBoardState();
+			Chesspiece[][] boardA = getBoardAsArray();
+			boardA[Move.getCoordFromPos(cp.getPos(),1)]
+					[Move.getCoordFromPos(cp.getPos(),0)]=cp;
+			setBoardOnly(getFenfromBoard(boardA));
+			return(!boardPre.equals(getBoardState()));
+		}
 
 		public boolean doMove(Move move) {
 			String boardFenPre = getBoardState();
@@ -131,12 +164,13 @@ public class Gamestate {
 			int xT = Move.getCoordFromPos(move.getTarget(),0);
 			Chesspiece currentCp = getPieceFromPos(move.getPosition());
 			Chesspiece targetCP = getPieceFromPos(move.getTarget());
-			if(targetCP!=null) {
-				addToReserve(targetCP);
-			}
 			boardA[yS][xS] = null;
 			boardA[yT][xT] = currentCp;
 			setBoardState(getFenfromBoard(boardA));
+			
+			if(targetCP!=null) {
+				addToReserve(targetCP);
+			}
 			
 			if(boardFenPre.equals(getBoardState())) {
 				return false;
@@ -150,37 +184,58 @@ public class Gamestate {
 			}
 		}
 		
-		private void addToReserve(Chesspiece targetCP) {
-			if(whiteTurn) {
-				reserveW.add(createChesspiece(null, Character.toUpperCase(targetCP.getFenChar())));
-			} else {
-				reserveB.add(createChesspiece(null, Character.toLowerCase(targetCP.getFenChar())));
-			}
-			targetCP = null;
-		}
-		
 		public boolean pullFromReserveToPos(char fenChar,String pos) {	
 			if (getPieceFromPos(pos)!=null) {
 				return false;
 			}
-			List<Chesspiece> cpL;
-			if(isWhiteTurn()) {
-				cpL=reserveW;
-			} else {
-				cpL=reserveB;
-			}
-			for(Chesspiece cp:cpL) {
-				if(Character.toLowerCase(cp.getFenChar())==fenChar) {
-					createChesspiece(pos,cp.getFenChar());
+			List<Character> cpL =getReserveAsList();
+			for(Character cp:cpL) {
+				if(Character.toLowerCase(cp)==fenChar&&
+						Character.isUpperCase(cp)==isWhiteTurn()) {
+					Chesspiece c = createChesspiece(pos,cp);
 					cpL.remove(cp);
-					if(getPieceFromPos(pos).getFenChar()==fenChar) {
-						return true;
-					} else {
-						return false;
-					}
+					setReserve(sortString(getReserveListAsString(cpL)));
+					return addPieceToBoard(c);
 				}
 			}
 			return false;
+		}
+		
+		public static String getReserveListAsString(List<Character> reserve) {
+			String resString="";
+			for(Character c:reserve) {
+				resString=resString+c;
+			}
+			return sortString(resString);
+		}
+		
+		public String getReserve() {
+			String[] rows = getBoardState().split("/");
+			if(rows.length==9) {
+				return rows[8];
+			}
+			return"";
+		}
+
+		public void setReserve(String reserve) {
+			setBoardState(getBoardOnly()+reserve);
+		}
+		
+		public void setBoardOnly(String boardState) {
+			setBoardState(boardState+getReserve());
+		}
+
+		private String getBoardOnly() {
+			String boardOnly = "";
+			String[] rows = getBoardState().split("/");
+			int i=0;
+			for(String s:rows) {
+				boardOnly=boardOnly+s+"/";
+				if(i++==7) {
+					return boardOnly;
+				}
+			}
+			return null;
 		}
 		
 		public boolean isKingInDanger() {
@@ -258,6 +313,19 @@ public class Gamestate {
 			}
 			return al;
 		}
+		
+	    public static String sortString(String inputString) { 
+	        char tempArray[] = inputString.toCharArray(); 
+	        Arrays.sort(tempArray); 
+	        return new String(tempArray); 
+	    }
+	    
+		public Boolean isWhite(String pos) { //null wenn Feld leer
+			if (getPieceFromPos(pos) == null) {
+				return null;
+			}
+			return getPieceFromPos(pos).isWhite();
+		}
 
 		public boolean isWhiteTurn() {
 			return whiteTurn;
@@ -267,12 +335,6 @@ public class Gamestate {
 			this.whiteTurn=whiteTurn;
 		}
 
-		public Boolean isWhite(String pos) { //null wenn Feld leer
-			if (getPieceFromPos(pos) == null) {
-				return null;
-			}
-			return getPieceFromPos(pos).isWhite();
-		}
 	    
 		public String getBoardState() {
 			return boardState;
@@ -281,21 +343,6 @@ public class Gamestate {
 		public void setBoardState(String boardState) {
 			this.boardState = boardState;
 		}
-
-		public List<Chesspiece> getReserveW() {
-			return reserveW;
-		}
-
-		public void setReserveW(List<Chesspiece> reserveW) {
-			this.reserveW = reserveW;
-		}
-
-		public List<Chesspiece> getReserveB() {
-			return reserveB;
-		}
-
-		public void setReserveB(List<Chesspiece> reserveB) {
-			this.reserveB = reserveB;
-		}		
+	
 }
 

@@ -9,12 +9,10 @@ public class Pawn extends Chesspiece {
 	@Override
 	public boolean tryMove(Move move) {
 		String a = this.getPos();
-		String b = move.getPosition();
-		
+		String b = move.getPosition();		
 		if(!a.equals(b) || move.getPosition()==move.getTarget()) {return false;}
 		if(this.isWhite()) {return tryMoveWhite(move);}
 		if(!this.isWhite()) {return tryMoveBlack(move);}
-		
 		return false;
 	}
 	
