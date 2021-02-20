@@ -1,8 +1,7 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents one move of a player in a certain stage of the game.

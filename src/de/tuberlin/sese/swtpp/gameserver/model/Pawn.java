@@ -1,7 +1,11 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class Pawn extends Chesspiece {
+import java.io.Serializable;
+
+public class Pawn extends Chesspiece implements Serializable {
 	
+	private static final long serialVersionUID = 7889126361165642482L;
+
 	public Pawn(String pos,char fenChar) {
 		super(pos,fenChar);
 	}

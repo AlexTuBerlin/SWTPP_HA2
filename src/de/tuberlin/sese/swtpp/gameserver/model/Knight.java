@@ -1,7 +1,11 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class Knight extends Chesspiece {
+import java.io.Serializable;
+
+public class Knight extends Chesspiece implements Serializable {
 	
+	private static final long serialVersionUID = -925421469433394680L;
+
 	public Knight(String pos,char fenChar) {
 		super(pos,fenChar);
 	}

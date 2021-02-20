@@ -1,7 +1,11 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class Rook extends Chesspiece {
+import java.io.Serializable;
+
+public class Rook extends Chesspiece implements Serializable {
 	
+	private static final long serialVersionUID = -696923383557195905L;
+
 	public Rook(String pos,char fenChar) {
 		super(pos,fenChar);
 	}

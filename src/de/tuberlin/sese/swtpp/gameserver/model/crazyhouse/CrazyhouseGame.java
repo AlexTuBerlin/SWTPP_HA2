@@ -206,12 +206,12 @@ public class CrazyhouseGame extends Game implements Serializable{
 
 	@Override
 	public void setBoard(String state) {
-		board.setBoardState(state);
+		this.board.setBoardState(state);
 	}
 	
 	@Override
 	public String getBoard() {
-		return board.getBoardState();
+		return this.board.getBoardState();
 	}
 
 	@Override
@@ -221,18 +221,20 @@ public class CrazyhouseGame extends Game implements Serializable{
 		
 		boolean isMovePossible = false;
 		boolean moveSuccess = false;
-		boolean isPosWhite = move.isAddToBoardMove()||board.isWhite(move.getPosition());
-		boolean isWhite=whitePlayer.equals(player);
+		boolean isAddToBoard = move.isAddToBoardMove();
+		Boolean isPosWhite = null;
+		if(!isAddToBoard) {
+			isPosWhite=board.isPosWhite(move.getPosition());
+		}
 		
-		if((isWhite&&isPosWhite&&isWhiteNext() ||
-		   blackPlayer.equals(player) && !isPosWhite&& !isWhiteNext()) &&
+		if((isPosWhite==null||isWhiteNext()==isPosWhite) &&
 				move.isValid()) {
 			
 			//ADD TO BOARD MOVE
-			if(move.getPosition().length()==1) {
+			if(isAddToBoard) {
 				isMovePossible = board.getPieceFromPos(move.getTarget())==null;
 				if(isMovePossible) {
-					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget());
+					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget(),isWhiteNext());
 				}
 			} 
 			
@@ -240,27 +242,37 @@ public class CrazyhouseGame extends Game implements Serializable{
 			if(move.isOrdenaryMove()) {
 				isMovePossible = board.getPieceFromPos(move.getPosition()).tryMove(move);
 				if(isMovePossible) {
-					moveSuccess = board.doMove(move);
+					moveSuccess = board.doMove(move,isWhiteNext());
 				}
 			}
-			
 			if(moveSuccess) {
-				this.history.add(move);
-				
-				if(isWhite) {
-					setNextPlayer(blackPlayer);
-				} else {
-					setNextPlayer(whitePlayer);
-				}
-				board.setTurn(!isWhite);
-				
-				//Check if moves are available
-				if(board.isKingInDanger()||board.getAllMovesPossible().isEmpty()) { //TODO true/false -remise
-					giveUp(getNextPlayer());
-				}
+				doPostMoveCheck(move);
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	public void switchTurn() {
+		
+		if(isWhiteNext()) {
+			setNextPlayer(blackPlayer);
+		} else {
+			setNextPlayer(whitePlayer);
+		}
+	}
+	
+	public void doPostMoveCheck(Move move) {
+		this.history.add(move);
+		switchTurn();
+		
+		//check if moves are available for opponent
+		if(board.getAllMovesPossible(isWhiteNext()).isEmpty()) {
+			if(board.isKingInDanger(isWhiteNext())){
+				giveUp(getNextPlayer());
+			} else {
+				callDraw(getNextPlayer());
+			}
+		}
 	}
 }

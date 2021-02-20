@@ -1,10 +1,7 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Gamestate implements Serializable {
@@ -12,11 +9,9 @@ public class Gamestate implements Serializable {
 	private static final long serialVersionUID = 1007695680187123877L;
 	private static Gamestate INSTANCE;
 	  private String boardState;
-	  private boolean whiteTurn;
 	    
 	    private Gamestate() {    
 	    	boardState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/"; //Start-Zustand Board
-	    	whiteTurn=true;
 	    }
 	    
 		public static Gamestate getGamestate() {
@@ -155,43 +150,44 @@ public class Gamestate implements Serializable {
 			return(!boardPre.equals(getBoardState()));
 		}
 
-		public boolean doMove(Move move) {
+		public boolean doMove(Move move,boolean isWhite) {
 			String boardFenPre = getBoardState();
-			Chesspiece[][] boardA = getBoardAsArray();
-			int yS = Move.getCoordFromPos(move.getPosition(),1);
-			int xS = Move.getCoordFromPos(move.getPosition(),0);
-			int yT = Move.getCoordFromPos(move.getTarget(),1);
-			int xT = Move.getCoordFromPos(move.getTarget(),0);
-			Chesspiece currentCp = getPieceFromPos(move.getPosition());
+
 			Chesspiece targetCP = getPieceFromPos(move.getTarget());
-			boardA[yS][xS] = null;
-			boardA[yT][xT] = currentCp;
-			setBoardState(getFenfromBoard(boardA));
+			clearPosition(move.getTarget());
+
+			Chesspiece currentCp = getPieceFromPos(move.getPosition());
+			clearPosition(move.getPosition());
+
+			currentCp.setPos(move.getTarget());
+			moveCP(currentCp);
 			
 			if(targetCP!=null) {
+				targetCP.setPos(null);
 				addToReserve(targetCP);
 			}
 			
-			if(boardFenPre.equals(getBoardState())) {
-				return false;
+			//check if Pawn has to be transformed
+
+		
+			if(!isKingInDanger(isWhite)) {
+				return true;
 			} else {
-				if(!isKingInDanger()) {
-					return true;
-				} else {
-					setBoardState(boardFenPre);
-					return false;
-				}
+				setBoardState(boardFenPre);
+				return false;
 			}
 		}
 		
-		public boolean pullFromReserveToPos(char fenChar,String pos) {	
-			if (getPieceFromPos(pos)!=null) {
+		public boolean pullFromReserveToPos(Character fenChar,String pos,boolean isWhiteTurn) {	
+			//check if pos isFree and in Case Pawn the position
+			if (getPieceFromPos(pos)!=null ||
+					(pos.indexOf(1)==1||pos.indexOf(1)==8)&&'p'==Character.toLowerCase(fenChar)) {
 				return false;
 			}
 			List<Character> cpL =getReserveAsList();
 			for(Character cp:cpL) {
 				if(Character.toLowerCase(cp)==fenChar&&
-						Character.isUpperCase(cp)==isWhiteTurn()) {
+						Character.isUpperCase(cp)==isWhiteTurn) {
 					Chesspiece c = createChesspiece(pos,cp);
 					cpL.remove(cp);
 					setReserve(sortString(getReserveListAsString(cpL)));
@@ -238,11 +234,11 @@ public class Gamestate implements Serializable {
 			return null;
 		}
 		
-		public boolean isKingInDanger() {
+		public boolean isKingInDanger(boolean isWhiteTurn) {
 			Chesspiece king;
 			for(Chesspiece cpR[]:getBoardAsArray()) {
 				for(Chesspiece cp:cpR) {
-					if(cp instanceof King && cp.isWhite()==isWhiteTurn()) {
+					if(cp instanceof King && cp.isWhite()==isWhiteTurn) {
 						king = cp;
 						if(isPosInDanger(king.getPos())){
 							return true;
@@ -271,12 +267,12 @@ public class Gamestate implements Serializable {
 			return false;
 		}
 		
-		public List<String> getAllMovesPossible(){
+		public List<String> getAllMovesPossible(boolean isWhite){
 			List<String> al = new ArrayList<>();
 			ArrayList<Move> alm = new ArrayList<>();
 			for(Chesspiece cpR[]:getBoardAsArray()) {
 				for(Chesspiece cp:cpR) {
-					if(cp!=null) {
+					if(cp!=null&&cp.isWhite()==isWhite) {
 						List<Move> lm=getPossibleMoves(cp);
 						if(lm!=null) {
 							alm.addAll(lm);
@@ -291,17 +287,16 @@ public class Gamestate implements Serializable {
 		}
 		
 		public List<Move> getPossibleMoves(Chesspiece cp){
-			if(cp.isWhite()==isWhiteTurn()) {
-				ArrayList<Move> al = new ArrayList<>();
-				for(String pos:allPosOnBoard()) {
-					Move move = new Move(cp.getPos()+"-"+pos, getBoardState(), null);
-					if(cp.tryMove(move)) {
-						al.add(move);
-					}
+			String boardPre = getBoardState();
+			ArrayList<Move> al = new ArrayList<>();
+			for(String pos:allPosOnBoard()) {
+				Move move = new Move(cp.getPos()+"-"+pos, getBoardState(), null);
+				if(cp.tryMove(move)&&doMove(move,cp.isWhite())) {
+					al.add(move);
+					setBoardState(boardPre);
 				}
-				return al;
 			}
-			return null;
+			return al;
 		}
 		
 		private List<String> allPosOnBoard(){
@@ -320,21 +315,44 @@ public class Gamestate implements Serializable {
 	        return new String(tempArray); 
 	    }
 	    
-		public Boolean isWhite(String pos) { //null wenn Feld leer
+		public Boolean isPosWhite(String pos) { //null wenn Feld leer
 			if (getPieceFromPos(pos) == null) {
 				return null;
 			}
 			return getPieceFromPos(pos).isWhite();
 		}
-
-		public boolean isWhiteTurn() {
-			return whiteTurn;
+		
+		public Chesspiece transformToQueen(Chesspiece cp) {
+			Chesspiece queen;
+			if(cp.isWhite()) {
+				queen = createChesspiece(cp.getPos(),'Q');
+			} else {
+				queen = createChesspiece(cp.getPos(),'q');
+			}
+			cp.setPos(null);
+			return queen;
 		}
 		
-		public void setTurn(boolean whiteTurn) {
-			this.whiteTurn=whiteTurn;
+		public void moveCP(Chesspiece cp) {
+			Chesspiece[][] boardA = getBoardAsArray();
+			int y = Move.getCoordFromPos(cp.getPos(),1);
+			int x = Move.getCoordFromPos(cp.getPos(),0);
+			if((y==0||y==7)&&'p'==Character.toLowerCase(cp.getFenChar())) {
+				cp=transformToQueen(cp);
+			}
+			boardA[y][x] = cp;
+			setBoardState(getFenfromBoard(boardA));
 		}
-
+		
+		public void clearPosition(String pos) {
+			if(getPieceFromPos(pos)!=null) {
+				Chesspiece boardA[][] = getBoardAsArray();
+				int y = Move.getCoordFromPos(pos,1);
+				int x = Move.getCoordFromPos(pos,0);
+				boardA[y][x] = null;
+				setBoardState(getFenfromBoard(boardA));
+			}
+		}
 	    
 		public String getBoardState() {
 			return boardState;

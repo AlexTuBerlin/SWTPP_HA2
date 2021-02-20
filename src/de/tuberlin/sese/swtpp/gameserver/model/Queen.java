@@ -1,7 +1,11 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class Queen extends Chesspiece {
-	
+import java.io.Serializable;
+
+public class Queen extends Chesspiece implements Serializable {
+
+	private static final long serialVersionUID = 8107729630606560030L;
+
 	public Queen(String pos,char fenChar) {
 		super(pos,fenChar);
 	}

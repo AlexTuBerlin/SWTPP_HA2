@@ -1,6 +1,10 @@
 package de.tuberlin.sese.swtpp.gameserver.model;
 
-public class Bishop extends Chesspiece	 {
+import java.io.Serializable;
+
+public class Bishop extends Chesspiece implements Serializable	 {
+
+	private static final long serialVersionUID = -4584146611030180756L;
 
 	public Bishop(String pos,char fenChar) {
 		super(pos,fenChar);
