@@ -73,24 +73,6 @@ public class Gamestate implements Serializable {
 			}
 			return fen;
 		}
-		public List<Character> getReserveAsList() {
-			String[] rows = getBoardState().split("/");
-			List<Character> reserveList =  new LinkedList<>();
-			if(rows[8]!=null) {
-				for(char c:rows[8].toCharArray()) {
-					reserveList.add(c);
-				}
-			}
-			return reserveList;
-		}
-		
-		public boolean addToReserve(Chesspiece cp) {
-			String reserveOld=getReserve();
-			String reserveNew = reserveOld+changeCase(cp.getFenChar());
-			cp.setPos("");
-			setReserve(sortString(reserveNew));
-			return reserveOld.length()!=reserveNew.length();
-		}
 		
 		public static char changeCase(char c) {
 			if(Character.toUpperCase(c)==c) {
@@ -108,7 +90,7 @@ public class Gamestate implements Serializable {
 				int emptyCount = 0;
 				int rowN = 7; //Reihe
 				int i = 0; //Spalte
-	        	int j = 0; //Position in einer Fen-String Reihe
+	        	int j = 0; //Position inerhalb einer Fen-String Reihe
 				String pos = "";
 		        while (rowN >= 0) { 
 		        	i=0;
@@ -135,19 +117,29 @@ public class Gamestate implements Serializable {
 		}
 		
 		public Chesspiece getPieceFromPos(String pos) {
-			Chesspiece[][] boardA = getBoardAsArray();
-			int y = Move.getCoordFromPos(pos,1);
-			int x = Move.getCoordFromPos(pos,0);
-			return boardA[y][x];
+			if(pos.length()==2) {
+				Chesspiece[][] boardA = getBoardAsArray();
+				int y = Move.getCoordFromPos(pos,1);
+				int x = Move.getCoordFromPos(pos,0);
+				return boardA[y][x];
+			}
+			return null;
 		}
 		
-		public boolean addPieceToBoard(Chesspiece cp) {
+		public boolean addPieceToBoard(Chesspiece cp,boolean isWhite,boolean commit) {
 			String boardPre = getBoardState();
 			Chesspiece[][] boardA = getBoardAsArray();
 			boardA[Move.getCoordFromPos(cp.getPos(),1)]
 					[Move.getCoordFromPos(cp.getPos(),0)]=cp;
 			setBoardOnly(getFenfromBoard(boardA));
-			return(!boardPre.equals(getBoardState()));
+			if(!isKingInDanger(!isWhite)) {
+				if(!commit) {
+					setBoardState(boardPre);
+				}
+				return true;
+			}
+			setBoardState(boardPre);
+			return false;
 		}
 
 		public boolean doMove(Move move,boolean isWhite) {
@@ -156,11 +148,11 @@ public class Gamestate implements Serializable {
 			Chesspiece targetCP = getPieceFromPos(move.getTarget());
 			clearPosition(move.getTarget());
 
-			Chesspiece currentCp = getPieceFromPos(move.getPosition());
+			Chesspiece currentCP = getPieceFromPos(move.getPosition());
 			clearPosition(move.getPosition());
 
-			currentCp.setPos(move.getTarget());
-			moveCP(currentCp);
+			currentCP.setPos(move.getTarget());
+			moveCP(currentCP);
 			
 			if(targetCP!=null) {
 				targetCP.setPos(null);
@@ -168,8 +160,6 @@ public class Gamestate implements Serializable {
 			}
 			
 			//check if Pawn has to be transformed
-
-		
 			if(!isKingInDanger(isWhite)) {
 				return true;
 			} else {
@@ -178,23 +168,52 @@ public class Gamestate implements Serializable {
 			}
 		}
 		
-		public boolean pullFromReserveToPos(Character fenChar,String pos,boolean isWhiteTurn) {	
-			//check if pos isFree and in Case Pawn the position
+		public List<Character> getReserveAsList() {
+			String[] rows = getBoardState().split("/");
+			List<Character> reserveList =  new LinkedList<>();
+			if(rows.length==9) {
+				for(char c:rows[8].toCharArray()) {
+					reserveList.add(c);
+				}
+			}
+			return reserveList;
+		}
+		
+		public boolean addToReserve(Chesspiece cp) {
+			String reserveOld=getReserve();
+			String reserveNew = reserveOld+changeCase(cp.getFenChar());
+			cp.setPos("");
+			setReserve(sortString(reserveNew));
+			return reserveOld.length()!=reserveNew.length();
+		}
+		
+		public boolean pullFromReserveToPos(Character fenChar,String pos,boolean isWhiteTurn,boolean commit) {	
+			String boardPre= getBoardState();
+			//check if position is Free and in case its a pawn also the position
+			if(pullReservePossible(fenChar,pos,isWhiteTurn)) {
+				List<Character> cpL =getReserveAsList();
+				for(Character cp:cpL) {
+					if(cp==fenChar&&
+							Character.isUpperCase(cp)==isWhiteTurn) {
+						Chesspiece c = createChesspiece(pos,cp);
+						cpL.remove(cp);
+						setReserve(sortString(getReserveListAsString(cpL)));
+						if(addPieceToBoard(c,isWhiteTurn,commit)){
+							return true;
+						} 
+					}
+				}
+			}
+			setBoardState(boardPre);
+			return false;
+		}
+		
+		public boolean pullReservePossible(Character fenChar,String pos,boolean isWhiteTurn) {
 			if (getPieceFromPos(pos)!=null ||
 					(pos.indexOf(1)==1||pos.indexOf(1)==8)&&'p'==Character.toLowerCase(fenChar)) {
 				return false;
 			}
-			List<Character> cpL =getReserveAsList();
-			for(Character cp:cpL) {
-				if(Character.toLowerCase(cp)==fenChar&&
-						Character.isUpperCase(cp)==isWhiteTurn) {
-					Chesspiece c = createChesspiece(pos,cp);
-					cpL.remove(cp);
-					setReserve(sortString(getReserveListAsString(cpL)));
-					return addPieceToBoard(c);
-				}
-			}
-			return false;
+			return true;
 		}
 		
 		public static String getReserveListAsString(List<Character> reserve) {
@@ -210,15 +229,7 @@ public class Gamestate implements Serializable {
 			if(rows.length==9) {
 				return rows[8];
 			}
-			return"";
-		}
-
-		public void setReserve(String reserve) {
-			setBoardState(getBoardOnly()+reserve);
-		}
-		
-		public void setBoardOnly(String boardState) {
-			setBoardState(boardState+getReserve());
+			return "";
 		}
 
 		private String getBoardOnly() {
@@ -280,10 +291,31 @@ public class Gamestate implements Serializable {
 					}
 				}
 			}
-			al = alm.stream().map(n -> n.getMove())
+			al.addAll(getAllAddToBoardMoves(isWhite));
+			al.addAll(alm.stream().map(n -> n.getMove())
 					.distinct().sorted()
-					.collect(Collectors.toList());
+					.collect(Collectors.toList()));
 			return al;
+		}
+		
+		public ArrayList<String> getAllAddToBoardMoves(boolean isWhite){
+			String boardPre = getBoardState();
+			List<Character> rl = getReserveAsList();
+			ArrayList<String> addToBoardMoves = new ArrayList<>();
+			if (!rl.isEmpty()) {
+				for(Character fenC:rl) {
+					if(Character.isUpperCase(fenC)==isWhite) {
+						for(String targetPos : allPosOnBoard()) {
+							Move move = new Move(fenC+"-"+targetPos, getBoardState(), null);
+							if(pullFromReserveToPos(fenC,targetPos,isWhite,false)) {
+								addToBoardMoves.add(move.getMove());
+								setBoardState(boardPre);
+							}
+						}
+					}
+				}
+			}
+			return addToBoardMoves;
 		}
 		
 		public List<Move> getPossibleMoves(Chesspiece cp){
@@ -341,7 +373,7 @@ public class Gamestate implements Serializable {
 				cp=transformToQueen(cp);
 			}
 			boardA[y][x] = cp;
-			setBoardState(getFenfromBoard(boardA));
+			setBoardOnly(getFenfromBoard(boardA));
 		}
 		
 		public void clearPosition(String pos) {
@@ -350,8 +382,16 @@ public class Gamestate implements Serializable {
 				int y = Move.getCoordFromPos(pos,1);
 				int x = Move.getCoordFromPos(pos,0);
 				boardA[y][x] = null;
-				setBoardState(getFenfromBoard(boardA));
+				setBoardOnly(getFenfromBoard(boardA));
 			}
+		}
+		
+		public void setReserve(String reserve) {
+			setBoardState(getBoardOnly()+reserve);
+		}
+		
+		public void setBoardOnly(String boardState) {
+			setBoardState(boardState+getReserve());
 		}
 	    
 		public String getBoardState() {

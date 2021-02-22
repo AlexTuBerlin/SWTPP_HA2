@@ -34,15 +34,15 @@ public class Move implements Serializable {
         this.move = move;
         this.board = boardBefore;
         this.player = player;
-        this.validStructure = checkString();
         this.isAddToBoard = isAddToBoardMove();
+        this.validStructure = checkString();
         this.xOffset = calcOffset(0,move);
         this.yOffset = calcOffset(1,move);
     }
 
     public boolean isOrdenaryMove() {
     	String[] arr = this.move.split("-");
-    	if(arr.length ==2 && arr[0].length()==2) {
+    	if(!this.isAddToBoard && isMoveStructure()) {
 	    	int x1,x2,y1,y2;
 	    	x1=getCoordFromPos(arr[0],0);
 	    	y1=getCoordFromPos(arr[0],1);
@@ -53,20 +53,25 @@ public class Move implements Serializable {
     	return false;
 	}
     
+    public boolean isMoveStructure() {
+    	String[] arr = this.move.split("-");
+    	return arr.length==2 && arr[0].length()==2 && arr[1].length()==2;
+    }
+    
     public boolean isAddToBoardMove() {
     	String[] arr = this.move.split("-");
-    	if(arr.length ==2) {
+    	if(arr.length ==2 && arr[0].length()==1) {
 	    	List<String> validChars = Arrays.asList(new String[]{"p","k","q","n","r","b"});
 	    	int x,y;
 	    	x=getCoordFromPos(arr[1],0);
 	    	y=getCoordFromPos(arr[1],1);
-			return coordOnBoard(x,y)&&validChars.contains(arr[0]);
+			return coordOnBoard(x,y)&&validChars.contains(arr[0].toLowerCase());
     	}
     	return false;
     }
     
     private boolean checkString() {
-    	return isOrdenaryMove() || isAddToBoardMove();
+    	return this.isAddToBoard || isOrdenaryMove();
     }
     
     private boolean coordOnBoard(int x,int y) {
@@ -74,7 +79,7 @@ public class Move implements Serializable {
     }
 
 	private int calcOffset(int axis, String move) {
-		if(!isAddToBoardMove()) {
+		if(!isAddToBoardMove()&&isMoveStructure()) {
     	String[] arr = this.move.split("-");
     	return getCoordFromPos(arr[1], axis)-getCoordFromPos(arr[0], axis);
 		}
@@ -159,6 +164,10 @@ public class Move implements Serializable {
 		} else {
 			return null;
 		}
+	}
+	
+	public boolean isAddToBoardWhite() {
+		return Character.isUpperCase(getToBoardFenChar());
 	}
 	
 	/************************************

@@ -2,6 +2,7 @@ package de.tuberlin.sese.swtpp.gameserver.model.crazyhouse;
 
 import java.io.Serializable;
 
+import de.tuberlin.sese.swtpp.gameserver.model.Chesspiece;
 import de.tuberlin.sese.swtpp.gameserver.model.Game;
 import de.tuberlin.sese.swtpp.gameserver.model.Gamestate;
 import de.tuberlin.sese.swtpp.gameserver.model.Move;
@@ -219,30 +220,34 @@ public class CrazyhouseGame extends Game implements Serializable{
 		String boardPre = board.getBoardState();
 		Move move = new Move(moveString,boardPre,player);
 		
-		boolean isMovePossible = false;
+		Boolean isMovePossible = false;
 		boolean moveSuccess = false;
 		boolean isAddToBoard = move.isAddToBoardMove();
-		Boolean isPosWhite = null;
+		Boolean isPositionWhite;
 		if(!isAddToBoard) {
-			isPosWhite=board.isPosWhite(move.getPosition());
+			isPositionWhite=board.isPosWhite(move.getPosition());
+		} else {
+			isPositionWhite=move.isAddToBoardWhite();
 		}
 		
-		if((isPosWhite==null||isWhiteNext()==isPosWhite) &&
-				move.isValid()) {
+		if(isPositionWhite!=null&&isWhiteNext()==isPositionWhite) {
 			
 			//ADD TO BOARD MOVE
 			if(isAddToBoard) {
 				isMovePossible = board.getPieceFromPos(move.getTarget())==null;
 				if(isMovePossible) {
-					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget(),isWhiteNext());
+					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget(),isWhiteNext(),true);
 				}
 			} 
 			
 			//ORDENARY MOVE
 			if(move.isOrdenaryMove()) {
-				isMovePossible = board.getPieceFromPos(move.getPosition()).tryMove(move);
-				if(isMovePossible) {
-					moveSuccess = board.doMove(move,isWhiteNext());
+				Chesspiece cp = board.getPieceFromPos(move.getPosition());
+				if(cp!=null) {
+					isMovePossible = cp.tryMove(move);
+					if(isMovePossible==true) {
+						moveSuccess = board.doMove(move,isWhiteNext());
+					}
 				}
 			}
 			if(moveSuccess) {

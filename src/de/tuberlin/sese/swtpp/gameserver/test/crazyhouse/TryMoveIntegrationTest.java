@@ -165,29 +165,27 @@ public class TryMoveIntegrationTest {
 		
 		startGame(fen,false);
 		move ="c7-c5";
-		assertTrue(game.tryMove(move, blackPlayer));
+		assertMove(move,false,true);
 		
 		startGame(fen,false);
-		game.setBoard(fen);
 		move ="c7-b6";
-		assertFalse(game.tryMove(move, blackPlayer));
+		assertMove(move,false,false);
 		
 	//ROOK
 		fen = "rnbqkbnr/pppp1ppp/8/8/8/1P6/1PPPPPPP/RNBQKBNR/";
-		startGame(fen,true);
 		
+		startGame(fen,true);
 		move ="a1-a4";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="a1-a8";
-		assertFalse(game.tryMove(move, whitePlayer));
+		assertMove(move,true,false);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="a1-a7";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
+		assertGameState("rnbqkbnr/Rppp1ppp/8/8/8/1P6/1PPPPPPP/1NBQKBNR/P",false,false,false);
 		
 		fen = "r2q1bnr/1ppp1ppp/1p6/8/1P6/1NB5/1PPPPPPP/R2QKBNR/";
 		startGame(fen,true);
@@ -242,17 +240,17 @@ public class TryMoveIntegrationTest {
 		assertTrue(game.tryMove(move, whitePlayer));
 	}
 	
-	/*
 	@Test
 	public void testAddToBoard() {
-		startGame("rnb1kbnr/pppqpppp/3p4/8/6P1/8/PPPPPP1P/RNBQKBNR/",false);
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/",false);
 		assertMove("d7-g4",false,true);
 		assertMove("a2-a3",true,true);
-		assertMove("p-a6",false,true);
-		assertGameState("rnb1kbnr/ppp1pppp/p2p4/8/6q1/P7/1PPPPP1P/RNBQKBNR/",true,false,false);
-		
+		assertMove("n-c4",false,true);
+		assertGameState("rnb1kbnr/ppp1pppp/3p4/8/2n3q1/P7/1PPPPP1P/RNBQKBNR/",true,false,false);
+		List<Move> history = game.getHistory();
+		assertTrue(history.size()==3);
 	}
-	*/
+	
 	@Test
 	public void testCantPutKingInDanger() {
 		String fen = "rnbqkbnr/p1pppppp/8/1p5Q/8/4P3/PPPP1PPP/RNB1KBNR/";
@@ -295,7 +293,7 @@ public class TryMoveIntegrationTest {
 	public void testPutIntoPlayMove() {
 		String fen = "rnbqkbnr/1ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/P";
 		startGame(fen,true);
-		assertMove("p-a7",true,true);
+		assertMove("P-a7",true,true);
 		assertGameState("rnbqkbnr/Pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/",false,false,false);
 	}
 	@Test
