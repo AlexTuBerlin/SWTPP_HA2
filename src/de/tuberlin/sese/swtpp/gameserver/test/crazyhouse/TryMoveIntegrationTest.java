@@ -87,7 +87,6 @@ public class TryMoveIntegrationTest {
 		Chesspiece[][] matrix = gamestate.getBoardAsArray();
 		Chesspiece ch5 = matrix[4][5];
 		assertEquals(ch5.getFenChar(),'p');
-		
 	}
 	
 	@Test
@@ -97,7 +96,6 @@ public class TryMoveIntegrationTest {
 		String pos = "d6";
 		char fe ='r';
 		Chesspiece cp = Gamestate.createChesspiece(pos,fe);
-		
 		assertTrue(cp instanceof Rook);
 		assertTrue(cp.getFenChar() == fe);
 		assertTrue(cp.getPos() == pos);
@@ -125,7 +123,6 @@ public class TryMoveIntegrationTest {
 		matrix = gamestate.getBoardAsArray();
 		transFen = Gamestate.getFenfromBoard(matrix);
 		assertTrue(fen2.equals(transFen));
-		assertFalse(fen.equals(transFen));
 	}
 	
 	@Test
@@ -189,55 +186,46 @@ public class TryMoveIntegrationTest {
 		
 		fen = "r2q1bnr/1ppp1ppp/1p6/8/1P6/1NB5/1PPPPPPP/R2QKBNR/";
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="a1-c1";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="a1-e1";
-		assertFalse(game.tryMove(move, whitePlayer));
+		assertMove(move,true,false);
 		
 	//BISHOP
 		fen = "rnbqkbnr/1ppp1ppp/1p6/8/8/PP6/1PPP1PPP/RNBQKBNR/";
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="f1-e2";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="f1-a6";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		fen = "rnbqkbnr/2pp1ppp/p7/1p6/1P6/P3P3/2PP1PPP/RNBQKBNR/";
 		startGame(fen,true);
-		game.setBoard(fen);
-		assertFalse(game.tryMove(move, whitePlayer));
+		assertMove(move,true,false);
 		
 	//QUEEN
 		fen = "rnb1kbnr/1ppqpppp/3p4/p7/P7/3P4/1PPQPPPP/RNB1KBNR/";
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="d2-a5";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="d2-f4";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 		
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="d2-d4";
-		assertFalse(game.tryMove(move, whitePlayer));
+		assertMove(move,true,false);
 		
 //Knight
 		fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/";
 		startGame(fen,true);
-		game.setBoard(fen);
 		move ="g1-h3";
-		assertTrue(game.tryMove(move, whitePlayer));
+		assertMove(move,true,true);
 	}
 	
 	@Test
@@ -265,7 +253,6 @@ public class TryMoveIntegrationTest {
 		
 		fen = "rnb1k2r/pppqpppp/3p4/7b/8/P3Pn1B/RP1PKPNP/QNBP1P1R/";
 		startGame(fen,false);
-		game.setBoard(fen);
 		assertMove("d7-b5",false,true);
 	}
 	
@@ -308,18 +295,15 @@ public class TryMoveIntegrationTest {
 	public void testGameFinish() {
 		String fen = "rnb1k2r/pppqpppp/3p4/7b/8/P3Pn1B/RP1PKPNP/QNBP1P1R/";
 		startGame(fen,false);
-		game.setBoard(fen);
 		assertMove("d7-b5",false,true);
 		assertMove("d2-d3",true,true);
 		assertGameState("rnb1k2r/ppp1pppp/3p4/1q5b/8/P2PPn1B/RP2KPNP/QNBP1P1R/",false,false,false);
-		
 	}
 	
 	@Test
 	public void testGameFinish2() {
 		String fen = "8/8/8/8/8/8/4q3/7K/";
 		startGame(fen,false);
-		game.setBoard(fen);
 		assertMove("e2-f2",false,true);
 		assertGameState("8/8/8/8/8/8/5q2/7K/",true,false,false);
 		assertMove("h1-h2",true,false);
