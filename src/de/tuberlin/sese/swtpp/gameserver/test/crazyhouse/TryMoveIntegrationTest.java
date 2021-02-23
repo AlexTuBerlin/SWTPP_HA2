@@ -1,7 +1,6 @@
 package de.tuberlin.sese.swtpp.gameserver.test.crazyhouse;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
@@ -235,8 +234,64 @@ public class TryMoveIntegrationTest {
 		assertMove("a2-a3",true,true);
 		assertMove("n-c4",false,true);
 		assertGameState("rnb1kbnr/ppp1pppp/3p4/8/2n3q1/P7/1PPPPP1P/RNBQKBNR/",true,false,false);
-		List<Move> history = game.getHistory();
-		assertTrue(history.size()==3);
+	}
+	
+	@Test
+	public void testAddToBoard2() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/p",false);
+		assertMove("p-f4",false,true);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/5pN1/8/PPPPPP1P/RNBQKBNR/",true,false,false);
+	}
+	
+	@Test
+	public void testAddToBoard4() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/np",false);
+		assertMove("p-a2",false,false);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/np",false,false,false);
+	}
+	
+	@Test
+	public void testAddToBoard6() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/nnp",false);
+		assertMove("p-a3",false,true);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/p7/PPPPPP1P/RNBQKBNR/nn",true,false,false);
+	}
+	
+	@Test
+	public void testAddToBoard7() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/NNPnnp",true);
+		assertMove("P-a3",true,true);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/P7/PPPPPP1P/RNBQKBNR/NNnnp",false,false,false);
+	}
+	
+	@Test
+	public void testAddToBoard3() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/ppnP",false);
+		assertMove("p-f4",false,true);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/5pN1/8/PPPPPP1P/RNBQKBNR/Pnp",true,false,false);
+	}
+	
+	@Test
+	public void weirdStrings() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/",false);
+		assertMove("d7d-g44",false,false);
+		assertMove("w7-g4-34",false,false);
+		assertMove("d7g4",false,false);
+		assertMove("d7-",false,false);	
+	}
+	
+	@Test
+	public void weirdBoard() {
+		startGame("rnb1kbnr/pppqppppPPPPPP1P/RNBQKBNR/",false);
+		assertMove("d7d-g44",false,false);
+		assertGameState("rnb1kbnr/pppqppppPPPPPP1P/RNBQKBNR/",false,false,false);
+
+	}
+	
+	@Test
+	public void weirdAddPiece() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/",false);
+		assertMove("f-g4",false,false);
 	}
 	
 	@Test
@@ -262,6 +317,19 @@ public class TryMoveIntegrationTest {
 		startGame(fen,true);
 		assertMove("h7-h8",true,true);
 		assertGameState("rnbqkbnQ/pppppp2/8/2pr4/2p5/8/PPPPPPP1/RNBQKBNR/",false,false,false);
+		
+		fen = "rnbqkbn1/1ppppp1P/8/2pr4/2p5/1P1R4/pPPPPPP1/1NBQKBNR/";
+		startGame(fen,false);
+		assertMove("a2-a1",false,true);
+		assertGameState("rnbqkbn1/1ppppp1P/8/2pr4/2p5/1P1R4/1PPPPPP1/qNBQKBNR/",true,false,false);
+	}
+	
+	@Test
+	public void testPawnToIllegalPos() {
+		String fen = "rnbqkbn1/pppppp1P/8/2pr4/2p5/6R1/PPPPPPP1/RNBQKBN1/PPn";
+		startGame(fen,true);
+		assertMove("P-h1",true,false);
+		assertGameState("rnbqkbn1/pppppp1P/8/2pr4/2p5/6R1/PPPPPPP1/RNBQKBN1/PPn",true,false,false);
 	}
 	
 	@Test

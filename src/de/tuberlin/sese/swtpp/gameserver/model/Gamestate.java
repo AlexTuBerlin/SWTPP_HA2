@@ -22,8 +22,7 @@ public class Gamestate implements Serializable {
 	    }
 		
 		public static Chesspiece createChesspiece(String pos, char fenChar) {
-			
-			switch (Character.toLowerCase(fenChar)) {
+			switch(Character.toLowerCase(fenChar)) {
 			case 'p': 
 				return new Pawn(pos,fenChar);
 			case 'k': 
@@ -34,10 +33,9 @@ public class Gamestate implements Serializable {
 				return new Knight(pos,fenChar);
 			case 'b': 
 				return new Bishop(pos,fenChar);
-			case 'r': 
+			default: 
 				return new Rook(pos,fenChar);
 			}
-			return null;
 		}
 		
 		public static String getFenfromBoard(Chesspiece[][] board) {
@@ -48,7 +46,8 @@ public class Gamestate implements Serializable {
 			boolean lastCol = false;
 			while (y <8) {
 				while (x < 8) {
-					while (board[7-y][x]==null && (x<8) && (!lastCol)) {
+					while (board[7-y][x]==null 
+							&& (!lastCol)) {
 						acc++;
 						if (x==7) {
 							lastCol = true;
@@ -66,7 +65,7 @@ public class Gamestate implements Serializable {
 						x++;
 					}
 				}
-					fen=fen+"/";
+				fen=fen+"/";
 				x=0;
 				lastCol = false;
 				y++;
@@ -84,40 +83,37 @@ public class Gamestate implements Serializable {
 		
 		//Fen String -> 2d-Char-Array
 		public Chesspiece[][] getBoardAsArray(){
-			if(getBoardState()!=null) {
-				String[] rows = getBoardState().split("/");
-				Chesspiece[][] boardA = new Chesspiece[8][8];
-				int emptyCount = 0;
-				int rowN = 7; //Reihe
-				int i = 0; //Spalte
-	        	int j = 0; //Position inerhalb einer Fen-String Reihe
-				String pos = "";
-		        while (rowN >= 0) { 
-		        	i=0;
-		        	j=0;
-		        	while(i<8) {
-		        		pos=Move.getPosfromCoord(i, 7-rowN);
-			        	if(Character.isDigit(rows[rowN].charAt(j))) {
-			        		emptyCount = Character.getNumericValue(rows[rowN].charAt(j));
-			        	} else {
-			        		boardA[7-rowN][i] = createChesspiece(pos, rows[rowN].charAt(j));
-			        		i++;
+			String[] rows = getBoardState().split("/");
+			Chesspiece[][] boardA = new Chesspiece[8][8];
+			int emptyCount = 0;
+			int rowN = 7; //Reihe
+			int i = 0; //Spalte
+        	int j = 0; //Position inerhalb einer Fen-String Reihe
+			String pos = "";
+	        while (rowN >= 0) { 
+	        	i=0;
+	        	j=0;
+	        	while(i<8) {
+	        		pos=Move.getPosfromCoord(i, 7-rowN);
+		        	if(Character.isDigit(rows[rowN].charAt(j))) {
+		        		emptyCount = Character.getNumericValue(rows[rowN].charAt(j));
+		        	} else {
+		        		boardA[7-rowN][i] = createChesspiece(pos, rows[rowN].charAt(j));
+		        		i++;
+		        	}
+		        	while (emptyCount != 0) { //null für leere Felder
+			        	i++;
+			        	emptyCount--;
 			        	}
-			        	while (emptyCount != 0) { //null für leere Felder
-				        	i++;
-				        	emptyCount--;
-				        	}
-			        	j++;
-				    }	        	
-				    rowN--;
-		        }
-		        return boardA;
-			}
-			return null;
+		        	j++;
+			    }	        	
+			    rowN--;
+	        }
+	        return boardA;
 		}
 		
 		public Chesspiece getPieceFromPos(String pos) {
-			if(pos.length()==2) {
+			if(pos!=null&&pos.length()==2) {
 				Chesspiece[][] boardA = getBoardAsArray();
 				int y = Move.getCoordFromPos(pos,1);
 				int x = Move.getCoordFromPos(pos,0);
@@ -168,12 +164,14 @@ public class Gamestate implements Serializable {
 			}
 		}
 		
+		@SuppressWarnings("deprecation")
 		public List<Character> getReserveAsList() {
 			String[] rows = getBoardState().split("/");
-			List<Character> reserveList =  new LinkedList<>();
+			List<Character> reserveList =  new ArrayList<>();
 			if(rows.length==9) {
-				for(char c:rows[8].toCharArray()) {
-					reserveList.add(c);
+				char[] charArr = rows[8].toCharArray();
+				for(int i=0;i<charArr.length;i++) {
+					reserveList.add(new Character(charArr[i]));
 				}
 			}
 			return reserveList;
@@ -184,7 +182,7 @@ public class Gamestate implements Serializable {
 			String reserveNew = reserveOld+changeCase(cp.getFenChar());
 			cp.setPos("");
 			setReserve(sortString(reserveNew));
-			return reserveOld.length()!=reserveNew.length();
+			return true;
 		}
 		
 		public boolean pullFromReserveToPos(Character fenChar,String pos,boolean isWhiteTurn,boolean commit) {	
@@ -193,8 +191,8 @@ public class Gamestate implements Serializable {
 			if(pullReservePossible(fenChar,pos,isWhiteTurn)) {
 				List<Character> cpL =getReserveAsList();
 				for(Character cp:cpL) {
-					if(cp==fenChar&&
-							Character.isUpperCase(cp)==isWhiteTurn) {
+					if(cp==fenChar
+							&& Character.isUpperCase(cp)==isWhiteTurn) {
 						Chesspiece c = createChesspiece(pos,cp);
 						cpL.remove(cp);
 						setReserve(sortString(getReserveListAsString(cpL)));
@@ -210,7 +208,9 @@ public class Gamestate implements Serializable {
 		
 		public boolean pullReservePossible(Character fenChar,String pos,boolean isWhiteTurn) {
 			if (getPieceFromPos(pos)!=null ||
-					(pos.indexOf(1)==1||pos.indexOf(1)==8)&&'p'==Character.toLowerCase(fenChar)) {
+					(Integer.parseInt(pos.substring(pos.length() - 1))==1||
+					Integer.parseInt(pos.substring(pos.length() - 1))==8)&&
+					'p'==Character.toLowerCase(fenChar)) {
 				return false;
 			}
 			return true;
@@ -239,10 +239,10 @@ public class Gamestate implements Serializable {
 			for(String s:rows) {
 				boardOnly=boardOnly+s+"/";
 				if(i++==7) {
-					return boardOnly;
+					 break;
 				}
 			}
-			return null;
+			return boardOnly;
 		}
 		
 		public boolean isKingInDanger(boolean isWhiteTurn) {

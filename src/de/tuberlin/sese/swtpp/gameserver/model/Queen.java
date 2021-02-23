@@ -29,6 +29,4 @@ public class Queen extends Chesspiece implements Serializable {
 			}
 		}
 	}
-	
-
 }

@@ -29,5 +29,4 @@ public class Knight extends Chesspiece implements Serializable {
 		}
 		return false;
 	}
-	
 }
