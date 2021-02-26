@@ -256,6 +256,13 @@ public class TryMoveIntegrationTest {
 		assertMove("p-a3",false,true);
 		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/p7/PPPPPP1P/RNBQKBNR/Pnnp",true,false,false);
 	}
+	@Test
+	public void testAddToBoard9() {
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/Pnnpp",false);
+		assertMove("p-a3fs",false,false);
+		assertMove("P-gg",false,false);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/Pnnpp",false,false,false);
+	}
 	
 	@Test
 	public void testAddToBoard7() {

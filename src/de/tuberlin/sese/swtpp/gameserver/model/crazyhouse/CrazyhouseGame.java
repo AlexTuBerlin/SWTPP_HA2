@@ -219,40 +219,42 @@ public class CrazyhouseGame extends Game implements Serializable{
 	public boolean tryMove(String moveString, Player player) {
 		String boardPre = board.getBoardState();
 		Move move = new Move(moveString,boardPre,player);
-		
-		Boolean isMovePossible = false;
-		boolean moveSuccess = false;
-		boolean isAddToBoard = move.isAddToBoardMove();
-		Boolean isPositionWhite;
-		if(!isAddToBoard) {
-			isPositionWhite=board.isPosWhite(move.getPosition());
-		} else {
-			isPositionWhite=move.isAddToBoardWhite();
-		}
-		
-		if(isPositionWhite!=null&&isWhiteNext()==isPositionWhite) {
+		if(move.isValid()) {
+			Boolean isMovePossible = false;
+			boolean moveSuccess = false;
+			boolean isAddToBoard = move.isAddToBoardMove();
+			Boolean isPositionWhite;
 			
-			//ADD TO BOARD MOVE
-			if(isAddToBoard) {
-				isMovePossible = board.getPieceFromPos(move.getTarget())==null;
-				if(isMovePossible) {
-					moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget(),isWhiteNext(),true);
-				}
-			} 
+			if(!isAddToBoard) {
+				isPositionWhite=board.isPosWhite(move.getPosition());
+			} else {
+				isPositionWhite=move.isAddToBoardWhite();
+			}
 			
-			//ORDENARY MOVE
-			if(move.isOrdenaryMove()) {
-				Chesspiece cp = board.getPieceFromPos(move.getPosition());
-				if(cp!=null) {
-					isMovePossible = cp.tryMove(move);
-					if(isMovePossible==true) {
-						moveSuccess = board.doMove(move,isWhiteNext());
+			if(isPositionWhite!=null&&isWhiteNext()==isPositionWhite) {
+				
+				//ADD TO BOARD MOVE
+				if(isAddToBoard) {
+					isMovePossible = board.getPieceFromPos(move.getTarget())==null;
+					if(isMovePossible) {
+						moveSuccess = board.pullFromReserveToPos(move.getToBoardFenChar(), move.getTarget(),isWhiteNext(),true);
+					}
+				} 
+				
+				//ORDENARY MOVE
+				if(move.isOrdenaryMove()) {
+					Chesspiece cp = board.getPieceFromPos(move.getPosition());
+					if(cp!=null) {
+						isMovePossible = cp.tryMove(move);
+						if(isMovePossible==true) {
+							moveSuccess = board.doMove(move,isWhiteNext());
+						}
 					}
 				}
-			}
-			if(moveSuccess) {
-				doPostMoveCheck(move);
-				return true;
+				if(moveSuccess) {
+					doPostMoveCheck(move);
+					return true;
+				}
 			}
 		}
 		return false;

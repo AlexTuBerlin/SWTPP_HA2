@@ -42,15 +42,16 @@ public class Move implements Serializable {
 
     public boolean isOrdenaryMove() {
     	String[] arr = this.move.split("-");
+    	boolean b = false;
     	if(!this.isAddToBoard && isMoveStructure()) {
 	    	int x1,x2,y1,y2;
 	    	x1=getCoordFromPos(arr[0],0);
 	    	y1=getCoordFromPos(arr[0],1);
 	    	x2=getCoordFromPos(arr[1],0);
 	    	y2=getCoordFromPos(arr[1],1);
-			return coordOnBoard(x1,y1)&&coordOnBoard(x2,y2);
+			b = coordOnBoard(x1,y1)&&coordOnBoard(x2,y2);
     	}
-    	return false;
+    	return b;
 	}
     
     public boolean isMoveStructure() {
@@ -60,7 +61,7 @@ public class Move implements Serializable {
     
     public boolean isAddToBoardMove() {
     	String[] arr = this.move.split("-");
-    	if(arr.length ==2 && arr[0].length()==1) {
+    	if(arr.length ==2 && arr[0].length()==1 && arr[1].length()==2) {
 	    	List<String> validChars = Arrays.asList(new String[]{"p","k","q","n","r","b"});
 	    	int x,y;
 	    	x=getCoordFromPos(arr[1],0);
@@ -71,7 +72,11 @@ public class Move implements Serializable {
     }
     
     private boolean checkString() {
-    	return this.isAddToBoard || isOrdenaryMove();
+    	if (this.move.length()==5||this.move.length()==4) {
+    		return this.isAddToBoard || isOrdenaryMove();
+    	} else { 
+    		return false;
+    	}
     }
     
     private boolean coordOnBoard(int x,int y) {

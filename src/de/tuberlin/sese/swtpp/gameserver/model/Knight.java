@@ -12,9 +12,7 @@ public class Knight extends Chesspiece implements Serializable {
 
 	@Override
 	public boolean tryMove(Move move) {
-		if(!this.getPos().equals(move.getPosition()) || move.getPosition()==move.getTarget()){
-			return false;
-			}
+
 		boolean isValidPattern = (Math.abs(move.yOffset)==2&&Math.abs(move.xOffset)==1)||
 				(Math.abs(move.yOffset)==1&&Math.abs(move.xOffset)==2);
 		if(isValidPattern) {
