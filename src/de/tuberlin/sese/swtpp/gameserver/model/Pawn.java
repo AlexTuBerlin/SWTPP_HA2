@@ -21,14 +21,14 @@ public class Pawn extends Chesspiece implements Serializable {
 	}
 	
 	private boolean tryMoveBlack(Move move) {	
-		boolean isValidAttack = (move.xOffset==1||move.xOffset==-1) && move.yOffset==1 && capturePossibleForBlack(move.getTarget()) ;
+		boolean isValidAttack = (move.xOffset==1||move.xOffset==-1) && move.yOffset==-1 && capturePossibleForBlack(move.getTarget()) ;
 		boolean isValidMove = (move.xOffset==0 && move.yOffset ==-1) && moveSpotFree(move.getTarget());
 		boolean isValidStart = this.isOnStartPosition()&&(move.xOffset==0 && move.yOffset ==-2) && moveSpotFree(move.getTarget());
 		return isValidAttack || isValidMove || isValidStart;
 	}
 	
 	private boolean tryMoveWhite(Move move) {	
-		boolean isValidAttack = (move.xOffset==1||move.xOffset==-1) && move.yOffset==-1&& capturePossibleForWhite(move.getTarget());
+		boolean isValidAttack = (move.xOffset==1||move.xOffset==-1) && move.yOffset==1&& capturePossibleForWhite(move.getTarget());
 		boolean isValidMove = (move.xOffset==0 && move.yOffset ==1) && moveSpotFree(move.getTarget());
 		boolean isValidStart = this.isOnStartPosition()&&(move.xOffset==0 && move.yOffset ==2) && moveSpotFree(move.getTarget());
 		return isValidAttack || isValidMove || isValidStart;

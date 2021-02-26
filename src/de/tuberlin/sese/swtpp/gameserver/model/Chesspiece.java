@@ -14,9 +14,9 @@ public abstract class Chesspiece {
 
 	public abstract boolean tryMove(Move move);
 	
-	public String addOffset(int xOff, int yOff) {
-		return Move.addOffsetToPostition(pos, xOff, yOff);
-	}
+//	public String addOffset(int xOff, int yOff) {
+//		return Move.addOffsetToPostition(pos, xOff, yOff);
+//	}
 
 	public boolean isWhite() {
 		return isWhite;
@@ -34,8 +34,8 @@ public abstract class Chesspiece {
 		return fenChar;
 	}
 	
-	public boolean isInReserve() {
-		return this.pos == null;
-	}
+//	public boolean isInReserve() {
+//		return this.pos == null;
+//	}
 
 }

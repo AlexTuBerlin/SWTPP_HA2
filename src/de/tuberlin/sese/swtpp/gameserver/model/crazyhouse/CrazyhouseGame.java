@@ -276,7 +276,7 @@ public class CrazyhouseGame extends Game implements Serializable{
 		//check if moves are available for opponent
 		if(board.getAllMovesPossible(isWhiteNext()).isEmpty()) {
 			if(board.isKingInDanger(isWhiteNext())){
-				giveUp(getNextPlayer());
+				regularGameEnd(blackPlayer == getNextPlayer() ? whitePlayer : blackPlayer);
 			} else {
 				callDraw(getNextPlayer());
 			}

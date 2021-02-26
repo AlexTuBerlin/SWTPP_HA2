@@ -24,7 +24,7 @@ public class King extends Chesspiece implements Serializable{
 				boolean capturePossible = cp.isWhite()!=this.isWhite();
 				return capturePossible;
 			} else {
-				return false;
+				return true;
 			}
 		} else {
 			return false;

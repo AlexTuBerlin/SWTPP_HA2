@@ -237,6 +237,31 @@ public class TryMoveIntegrationTest {
 	}
 	
 	@Test
+	public void testAddToBoard11111() {
+		startGame("2RNk2r/8/8/p2B3p/P4ppP/5PP1/RP1K4/2B4R/",false);
+		assertMove("g4-f3",false,true);
+		assertGameState("2RNk2r/8/8/p2B3p/P4p1P/5pP1/RP1K4/2B4R/p",true,false,false);
+	}
+	@Test
+	public void testBotGaveUp() {
+		startGame("Q1b1kbnr/p2pNppp/2Q5/2p5/1PPP4/8/rp1nPPPP/2BK1BNR/QRp",false);
+		assertMove("p-c2",false,true);
+		assertGameState("Q1b1kbnr/p2pNppp/2Q5/2p5/1PPP4/8/rppnPPPP/2BK1BNR/QR",true,false,false);
+	}
+	
+	@Test
+	public void testBotGaveUp2() {
+		startGame("r1bqkbnr/4pPpp/7P/8/2B3P1/1pP2K2/1PpP1P2/RNn3NR/BPQ",false);
+		assertMove("e8-d7",false,true);
+		assertGameState("r1bq1bnr/3kpPpp/7P/8/2B3P1/1pP2K2/1PpP1P2/RNn3NR/BPQ",true,false,false);
+	}
+	@Test
+	public void testAddToBoardKingMove() {
+		startGame("2RNk2r/8/8/p2B3p/P4p1P/5pP1/RP1K4/2B4R/",true);
+		assertMove("d2-d3",true,true);
+		assertGameState("2RNk2r/8/8/p2B3p/P4p1P/3K1pP1/RP6/2B4R/",false,false,false);
+	}
+	@Test
 	public void testAddToBoard2() {
 		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/p",false);
 		assertMove("p-f4",false,true);

@@ -101,7 +101,7 @@ public class Gamestate implements Serializable {
 		        		boardA[7-rowN][i] = createChesspiece(pos, rows[rowN].charAt(j));
 		        		i++;
 		        	}
-		        	while (emptyCount != 0) { //null für leere Felder
+		        	while (emptyCount != 0) { //null fï¿½r leere Felder
 			        	i++;
 			        	emptyCount--;
 			        	}
@@ -128,7 +128,7 @@ public class Gamestate implements Serializable {
 			boardA[Move.getCoordFromPos(cp.getPos(),1)]
 					[Move.getCoordFromPos(cp.getPos(),0)]=cp;
 			setBoardOnly(getFenfromBoard(boardA));
-			if(!isKingInDanger(!isWhite)) {
+			if(!isKingInDanger(isWhite)) {
 				if(!commit) {
 					setBoardState(boardPre);
 				}
