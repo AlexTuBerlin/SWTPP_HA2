@@ -252,16 +252,16 @@ public class TryMoveIntegrationTest {
 	
 	@Test
 	public void testAddToBoard6() {
-		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/nnp",false);
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/Pnnpp",false);
 		assertMove("p-a3",false,true);
-		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/p7/PPPPPP1P/RNBQKBNR/nn",true,false,false);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/p7/PPPPPP1P/RNBQKBNR/Pnnp",true,false,false);
 	}
 	
 	@Test
 	public void testAddToBoard7() {
-		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/NNPnnp",true);
+		startGame("rnb1kbnr/pppqpppp/3p4/8/6N1/8/PPPPPP1P/RNBQKBNR/PPnnp",true);
 		assertMove("P-a3",true,true);
-		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/P7/PPPPPP1P/RNBQKBNR/NNnnp",false,false,false);
+		assertGameState("rnb1kbnr/pppqpppp/3p4/8/6N1/P7/PPPPPP1P/RNBQKBNR/Pnnp",false,false,false);
 	}
 	
 	@Test

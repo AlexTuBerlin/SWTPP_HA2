@@ -167,7 +167,7 @@ public class Gamestate implements Serializable {
 		@SuppressWarnings("deprecation")
 		public List<Character> getReserveAsList() {
 			String[] rows = getBoardState().split("/");
-			List<Character> reserveList =  new ArrayList<>();
+			List<Character> reserveList =  new LinkedList<>();
 			if(rows.length==9) {
 				char[] charArr = rows[8].toCharArray();
 				for(int i=0;i<charArr.length;i++) {
@@ -191,10 +191,12 @@ public class Gamestate implements Serializable {
 			if(pullReservePossible(fenChar,pos,isWhiteTurn)) {
 				List<Character> cpL =getReserveAsList();
 				for(Character cp:cpL) {
-					if(cp==fenChar
+					if(cp.equals(fenChar)
 							&& Character.isUpperCase(cp)==isWhiteTurn) {
 						Chesspiece c = createChesspiece(pos,cp);
-						cpL.remove(cp);
+						if(commit) {
+							removePieceFromList(cpL,cp);
+						}
 						setReserve(sortString(getReserveListAsString(cpL)));
 						if(addPieceToBoard(c,isWhiteTurn,commit)){
 							return true;
@@ -204,6 +206,16 @@ public class Gamestate implements Serializable {
 			}
 			setBoardState(boardPre);
 			return false;
+		}
+		
+		public void removePieceFromList(List<Character> res,Character c) {
+			for (Iterator<Character> iterator = res.iterator(); iterator.hasNext();) {
+				Character ch = iterator.next();
+			    if(ch.equals(c)) {
+			        iterator.remove();
+			        break;
+			    }
+			}
 		}
 		
 		public boolean pullReservePossible(Character fenChar,String pos,boolean isWhiteTurn) {
@@ -298,10 +310,10 @@ public class Gamestate implements Serializable {
 			return al;
 		}
 		
-		public ArrayList<String> getAllAddToBoardMoves(boolean isWhite){
+		public LinkedList<String> getAllAddToBoardMoves(boolean isWhite){
 			String boardPre = getBoardState();
 			List<Character> rl = getReserveAsList();
-			ArrayList<String> addToBoardMoves = new ArrayList<>();
+			LinkedList<String> addToBoardMoves = new LinkedList<>();
 			if (!rl.isEmpty()) {
 				for(Character fenC:rl) {
 					if(Character.isUpperCase(fenC)==isWhite) {
