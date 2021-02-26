@@ -8,7 +8,7 @@ import de.tuberlin.sese.swtpp.gameserver.model.crazyhouse.CrazyhouseGame;
 public class GameFactory {
 
     //TODO: change path to bot executable if desired   
-    public static final String CRAZYHOUSE_BOT_PATH = "D:\\tmp\\crazyhouse\\";
+    public static final String CRAZYHOUSE_BOT_PATH = "/SWTPP_HA2/Main.exe";
     public static final String CRAZYHOUSE_BOT_COMMAND = "Bot";
 
     private GameFactory() {
