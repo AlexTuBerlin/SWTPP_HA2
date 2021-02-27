@@ -12,12 +12,13 @@ public class Pawn extends Chesspiece implements Serializable {
 
 	@Override
 	public boolean tryMove(Move move) {
-		String a = this.getPos();
-		String b = move.getPosition();		
-		if(!a.equals(b) || move.getPosition()==move.getTarget()) {return false;}
+//		String a = this.getPos();
+//		String b = move.getPosition();		
+//		if(!a.equals(b)) 
+//				//|| move.getPosition()==move.getTarget()) 
+//			{return false;}
 		if(this.isWhite()) {return tryMoveWhite(move);}
-		if(!this.isWhite()) {return tryMoveBlack(move);}
-		return false;
+		else {return tryMoveBlack(move);}
 	}
 	
 	private boolean tryMoveBlack(Move move) {	
@@ -58,9 +59,8 @@ public class Pawn extends Chesspiece implements Serializable {
 		if(this.isWhite()) {
 			return Move.getCoordFromPos(this.getPos(), 1) == 1;
 		}
-		if(!this.isWhite()) {
+		else {
 			return Move.getCoordFromPos(this.getPos(), 1) == 6;
 		}
-		return false;
 	}
 }

@@ -231,7 +231,8 @@ public class CrazyhouseGame extends Game implements Serializable{
 				isPositionWhite=move.isAddToBoardWhite();
 			}
 			
-			if(isPositionWhite!=null&&isWhiteNext()==isPositionWhite) {
+			if(isPositionWhite!=null
+					&&isWhiteNext()==isPositionWhite) {
 				
 				//ADD TO BOARD MOVE
 				if(isAddToBoard) {

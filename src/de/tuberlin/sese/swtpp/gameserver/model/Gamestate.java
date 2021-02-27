@@ -12,6 +12,7 @@ public class Gamestate implements Serializable {
 	    
 	    private Gamestate() {    
 	    	boardState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/"; //Start-Zustand Board
+	    	testxd();
 	    }
 	    
 		public static Gamestate getGamestate() {
@@ -111,7 +112,9 @@ public class Gamestate implements Serializable {
 	        }
 	        return boardA;
 		}
-		
+		public void testxd() {
+			getPieceFromPos("aaaaa");
+		}
 		public Chesspiece getPieceFromPos(String pos) {
 			if(pos!=null&&pos.length()==2) {
 				Chesspiece[][] boardA = getBoardAsArray();
@@ -273,21 +276,25 @@ public class Gamestate implements Serializable {
 			}
 			return false;
 		}
-		
-		public boolean isPosInDanger(String pos) {
-			for(Chesspiece cpR[]:getBoardAsArray()) {
-				for(Chesspiece cp:cpR) {
-					if(cp!=null) {
-						if(cp.isWhite()!=getPieceFromPos(pos).isWhite()) {
-							Move move = new Move(cp.getPos()+"-"+pos,getBoardState(),null);
-							if(cp.tryMove(move)) {
-								return true;
-							}
-						}
+		public boolean posDangerHelper (Chesspiece cp, String pos ) {
+			if(cp!=null) {
+				if(cp.isWhite()!=getPieceFromPos(pos).isWhite()) {
+					Move move = new Move(cp.getPos()+"-"+pos,getBoardState(),null);
+					if(cp.tryMove(move)) {
+						return true;
 					}
 				}
 			}
 			return false;
+		}
+		public boolean isPosInDanger(String pos) {
+			boolean result = false;
+			for(Chesspiece cpR[]:getBoardAsArray()) {
+				for(Chesspiece cp:cpR) {
+					result = result || posDangerHelper(cp, pos);
+				}
+			}
+			return result;
 		}
 		
 		public List<String> getAllMovesPossible(boolean isWhite){
@@ -360,9 +367,9 @@ public class Gamestate implements Serializable {
 	    }
 	    
 		public Boolean isPosWhite(String pos) { //null wenn Feld leer
-			if (getPieceFromPos(pos) == null) {
-				return null;
-			}
+//			if (getPieceFromPos(pos) == null) {
+//				return null;
+//			}
 			return getPieceFromPos(pos).isWhite();
 		}
 		

@@ -302,6 +302,18 @@ public class TryMoveIntegrationTest {
 		assertMove("p-f4",false,true);
 		assertGameState("rnb1kbnr/pppqpppp/3p4/8/5pN1/8/PPPPPP1P/RNBQKBNR/Pnp",true,false,false);
 	}
+	@Test
+	public void testAddToBoard99() {
+		startGame("rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPPP1/RNBQKBNR/",true);
+		assertMove("h1-h3",true,true);
+		assertGameState("rnbqkbnr/pppppppp/8/8/8/6PR/PPPPPPP1/RNBQKBN1/",false,false,false);
+	}
+	@Test
+	public void testAddToBoard98() {
+		startGame("rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPPP1/RNBQKBNR/",true);
+		assertMove("h1-h1",true,false);
+		assertGameState("rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPPP1/RNBQKBNR/",true,false,false);
+	}
 	
 	@Test
 	public void weirdStrings() {
@@ -309,7 +321,8 @@ public class TryMoveIntegrationTest {
 		assertMove("d7d-g44",false,false);
 		assertMove("w7-g4-34",false,false);
 		assertMove("d7g4",false,false);
-		assertMove("d7-",false,false);	
+		assertMove("d7-",false,false);
+		assertMove("a9-b9",false,false);
 	}
 	
 	@Test
